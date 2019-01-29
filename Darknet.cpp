@@ -187,6 +187,32 @@ struct UpsampleLayer : torch::nn::Module
     }
 };
 
+struct MaxPoolLayer2D : torch::nn::Module
+{
+	int _kernel_size;
+	int _stride;
+    MaxPoolLayer2D(int kernel_size, int stride){
+        _kernel_size = kernel_size;
+        _stride = stride;
+    }
+
+    torch::Tensor forward(torch::Tensor x) {	
+    	if (_stride != 1)
+    	{
+    		x = torch::max_pool2d(x, {_kernel_size, _kernel_size}, {_stride, _stride});
+    	}
+    	else
+    	{
+    		int pad = _kernel_size - 1;
+
+       		torch::Tensor padded_x = torch::replication_pad2d(x, {0, pad, 0, pad});
+    		x = torch::max_pool2d(padded_x, {_kernel_size, _kernel_size}, {_stride, _stride});
+    	}       
+
+        return x;
+    }
+};
+
 struct DetectionLayer : torch::nn::Module
 {
 	vector<float> _anchors;
@@ -366,6 +392,14 @@ void Darknet::create_modules()
 
 			UpsampleLayer uplayer(stride);
 			module->push_back(uplayer);
+		}
+		else if (layer_type == "maxpool")
+		{
+			int stride = get_int_from_cfg(block, "stride", 1);
+			int size = get_int_from_cfg(block, "size", 1);
+
+			MaxPoolLayer2D poolLayer(size, stride);
+			module->push_back(poolLayer);
 		}
 		else if (layer_type == "shortcut")
 		{
@@ -578,7 +612,7 @@ torch::Tensor Darknet::forward(torch::Tensor x)
 		if (layer_type == "net")
 			continue;
 
-		if (layer_type == "convolutional" || layer_type == "upsample")
+		if (layer_type == "convolutional" || layer_type == "upsample" || layer_type == "maxpool")
 		{
 			torch::nn::SequentialImpl *seq_imp = dynamic_cast<torch::nn::SequentialImpl *>(module_list[i].ptr().get());
 			
