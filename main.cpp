@@ -1,10 +1,14 @@
 #include <torch/torch.h>
 #include <iostream>
+#include <chrono>
 #include <time.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "Darknet.h"
+
+using namespace std; 
+using namespace std::chrono; 
 
 int main(int argc, const char* argv[])
 {
@@ -40,14 +44,14 @@ int main(int argc, const char* argv[])
     torch::NoGradGuard no_grad;
     net.eval();
 
-    std::cout << "inference..." << endl;
+    std::cout << "start to inference ..." << endl;
     
     cv::Mat origin_image, resized_image;
 
     // origin_image = cv::imread("../139.jpg");
     origin_image = cv::imread(argv[1]);
     
-    cv::cvtColor(origin_image, resized_image, CV_BGR2RGB);
+    cv::cvtColor(origin_image, resized_image,  cv::COLOR_RGB2BGR);
     cv::resize(resized_image, resized_image, cv::Size(input_image_size, input_image_size));
 
     cv::Mat img_float;
@@ -56,6 +60,8 @@ int main(int argc, const char* argv[])
     auto img_tensor = torch::CPU(torch::kFloat32).tensorFromBlob(img_float.data, {1, input_image_size, input_image_size, 3});
     img_tensor = img_tensor.permute({0,3,1,2});
     auto img_var = torch::autograd::make_variable(img_tensor, false).to(device);
+
+    auto start = std::chrono::high_resolution_clock::now();
        
     auto output = net.forward(img_var);
     
@@ -63,6 +69,13 @@ int main(int argc, const char* argv[])
     // class_num = 80
     // confidence = 0.6
     auto result = net.write_results(output, 80, 0.6, 0.4);
+
+    auto end = std::chrono::high_resolution_clock::now();
+
+    auto duration = duration_cast<milliseconds>(end - start); 
+
+    // It should be known that it takes longer time at first time
+    std::cout << "inference taken : " << duration.count() << " ms" << endl; 
 
     if (result.dim() == 1)
     {
