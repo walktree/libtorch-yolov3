@@ -37,3 +37,5 @@ On Single image:
 ```
 ./yolo-app ../imgs/person.jpg
 ```
+
+As I tested, it will take 25 ms on GPU ( 1080 ti ). please run inference job more than once, and calculate the average cost.
