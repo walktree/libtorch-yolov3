@@ -133,17 +133,17 @@ string Darknet::get_string_from_cfg(map<string, string> block, string key, strin
 torch::nn::Conv2dOptions conv_options(int64_t in_planes, int64_t out_planes, int64_t kerner_size,
                           int64_t stride, int64_t padding, int64_t groups, bool with_bias=false){
     torch::nn::Conv2dOptions conv_options = torch::nn::Conv2dOptions(in_planes, out_planes, kerner_size);
-    conv_options.stride_ = stride;
-    conv_options.padding_ = padding;
-    conv_options.groups_ = groups;
-    conv_options.with_bias_ = with_bias;
+    conv_options.stride(stride);
+    conv_options.padding(padding);
+    conv_options.groups(groups);
+    conv_options.with_bias(with_bias);
     return conv_options;
 }
 
 torch::nn::BatchNormOptions bn_options(int64_t features){
     torch::nn::BatchNormOptions bn_options = torch::nn::BatchNormOptions(features);
-    bn_options.affine_ = true;
-    bn_options.stateful_ = true;
+    bn_options.affine(true);
+    bn_options.stateful(true);
     return bn_options;
 }
 
@@ -524,7 +524,7 @@ void Darknet::load_weights(const char *weight_file)
     at::TensorOptions options= torch::TensorOptions()
         .dtype(torch::kFloat32)
         .is_variable(true);
-    at::Tensor weights = torch::CPU(torch::kFloat32).tensorFromBlob(weights_src, {length/4});
+    at::Tensor weights = torch::from_blob(weights_src, {length/4});
 
 	for (int i = 0; i < module_list.size(); i++)
 	{
@@ -566,12 +566,12 @@ void Darknet::load_weights(const char *weight_file)
 			bn_bias = bn_bias.view_as(bn_imp->bias);
 			bn_weights = bn_weights.view_as(bn_imp->weight);
 			bn_running_mean = bn_running_mean.view_as(bn_imp->running_mean);
-			bn_running_var = bn_running_var.view_as(bn_imp->running_variance);
+            bn_running_var = bn_running_var.view_as(bn_imp->running_var);
 
 			bn_imp->bias.set_data(bn_bias);
 			bn_imp->weight.set_data(bn_weights);
 			bn_imp->running_mean.set_data(bn_running_mean);
-			bn_imp->running_variance.set_data(bn_running_var);
+            bn_imp->running_var.set_data(bn_running_var);
 		}
 		else
 		{

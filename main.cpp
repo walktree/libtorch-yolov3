@@ -57,13 +57,12 @@ int main(int argc, const char* argv[])
     cv::Mat img_float;
     resized_image.convertTo(img_float, CV_32F, 1.0/255);
 
-    auto img_tensor = torch::CPU(torch::kFloat32).tensorFromBlob(img_float.data, {1, input_image_size, input_image_size, 3});
+    auto img_tensor = torch::from_blob(img_float.data, {1, input_image_size, input_image_size, 3}).to(device);
     img_tensor = img_tensor.permute({0,3,1,2});
-    auto img_var = torch::autograd::make_variable(img_tensor, false).to(device);
 
     auto start = std::chrono::high_resolution_clock::now();
        
-    auto output = net.forward(img_var);
+    auto output = net.forward(img_tensor);
     
     // filter result by NMS 
     // class_num = 80
