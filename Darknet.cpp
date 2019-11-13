@@ -167,7 +167,7 @@ struct UpsampleLayer : torch::nn::Module
 
     torch::Tensor forward(torch::Tensor x) {
 
-    	torch::IntList sizes = x.sizes();
+    	torch::IntArrayRef sizes = x.sizes();
 
     	int64_t w, h;
 
@@ -296,8 +296,9 @@ void Darknet::load_cfg(const char *cfg_file)
  
 	if(!fs) 
 	{
-		std::cout << "Fail to load cfg file:" << cfg_file << endl;
-		return;
+		std::cout << "Fail to load cfg file: " << cfg_file << endl;
+		std::cout <<  strerror(errno) << endl;
+		exit(-1);
 	}
 
 	while (getline (fs, line))
@@ -504,6 +505,12 @@ map<string, string>* Darknet::get_net_info()
 void Darknet::load_weights(const char *weight_file)
 {
 	ifstream fs(weight_file, ios::binary);
+
+	if (!fs) {
+		std::cout << "Fail to load weight file: " << weight_file << endl;
+		std::cout <<  strerror(errno) << endl;
+		exit(-1);
+	}
 
 	// header info: 5 * int32_t
 	int32_t header_size = sizeof(int32_t)*5;
