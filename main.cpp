@@ -51,7 +51,7 @@ int main(int argc, const char* argv[])
     // origin_image = cv::imread("../139.jpg");
     origin_image = cv::imread(argv[1]);
     
-    cv::cvtColor(origin_image, resized_image,  cv::COLOR_RGB2BGR);
+    cv::cvtColor(origin_image, resized_image,  cv::COLOR_BGR2RGB);
     cv::resize(resized_image, resized_image, cv::Size(input_image_size, input_image_size));
 
     cv::Mat img_float;
