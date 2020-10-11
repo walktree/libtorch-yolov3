@@ -1,3 +1,5 @@
+### Remark: It is a great work from @walktree, yet it was based on older PyTorch version. This repo. is to provide a fixed version for PyTorch 1.6. 
+
 # libtorch-yolov3
 A Libtorch implementation of the YOLO v3 object detection algorithm, written with pure C++. It's fast, easy to be integrated to your production, and CPU and GPU are both supported. Enjoy ~
 
