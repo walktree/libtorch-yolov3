@@ -235,7 +235,7 @@ struct DetectionLayer : torch::nn::Module
     	int bbox_attrs = 5 + num_classes;
     	int num_anchors = anchors.size()/2;
 
-    	for (int i = 0; i < anchors.size(); i++)
+    	for (size_t i = 0; i < anchors.size(); i++)
     	{
     		anchors[i] = anchors[i]/stride;
     	}
@@ -347,7 +347,7 @@ void Darknet::create_modules()
 
 	int filters = 0;
 
-	for (int i = 0, len = blocks.size(); i < len; i++)
+	for (size_t i = 0, len = blocks.size(); i < len; i++)
 	{
 		map<string, string> block = blocks[i];
 
@@ -464,7 +464,7 @@ void Darknet::create_modules()
 
 			std::vector<float> anchor_points;
 			int pos;
-			for (int i = 0; i< masks.size(); i++)
+			for (size_t i = 0; i< masks.size(); i++)
 			{
 				pos = masks[i];
 				anchor_points.push_back(anchors[pos * 2]);
@@ -526,7 +526,7 @@ void Darknet::load_weights(const char *weight_file)
         .is_variable(true);*/ //@ihmc3jn09hk Remove unused code
     at::Tensor weights = torch::from_blob(weights_src, {length/4});
 
-	for (int i = 0; i < module_list.size(); i++)
+	for (size_t i = 0; i < module_list.size(); i++)
 	{
 		map<string, string> module_info = blocks[i + 1];
 
@@ -596,14 +596,14 @@ void Darknet::load_weights(const char *weight_file)
 
 torch::Tensor Darknet::forward(torch::Tensor x) 
 {
-	int module_count = module_list.size();
+	size_t module_count = module_list.size();
 
 	std::vector<torch::Tensor> outputs(module_count);
 
 	torch::Tensor result;
 	int write = 0;
 
-	for (int i = 0; i < module_count; i++)
+	for (size_t i = 0; i < module_count; i++)
 	{
 		map<string, string> block = blocks[i+1];
 
@@ -731,7 +731,7 @@ torch::Tensor Darknet::write_results(torch::Tensor prediction, int num_classes, 
 	    for (int m = 0, len = image_prediction_data.size(0); m < len; m++) 
 	    {
 	    	bool found = false;	        
-	        for (int n = 0; n < img_classes.size(); n++)
+	        for (size_t n = 0; n < img_classes.size(); n++)
 	        {
 	        	auto ret = (image_prediction_data[m][6] == img_classes[n]);
 	        	if (torch::nonzero(ret).size(0) > 0)
@@ -743,7 +743,7 @@ torch::Tensor Darknet::write_results(torch::Tensor prediction, int num_classes, 
 	        if (!found) img_classes.push_back(image_prediction_data[m][6]);
 	    }
 
-        for (int k = 0; k < img_classes.size(); k++)
+        for (size_t k = 0; k < img_classes.size(); k++)
         {
         	auto cls = img_classes[k];
 
