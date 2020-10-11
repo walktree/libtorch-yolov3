@@ -70,12 +70,13 @@ static inline int split(const string& str, std::vector<string>& ret_, string sep
 static inline int split(const string& str, std::vector<int>& ret_, string sep = ",")
 {
 	std::vector<string> tmp;
-	split(str, tmp, sep);
+	auto rc = split(str, tmp, sep);
 
 	for(int i = 0; i < tmp.size(); i++)
 	{
 		ret_.push_back(std::stoi(tmp[i]));
 	}
+	return rc;
 }
 
 // returns the IoU of two bounding boxes 
@@ -499,6 +500,7 @@ map<string, string>* Darknet::get_net_info()
 	{
 		return &blocks[0];
 	}
+	return nullptr;
 }
 
 void Darknet::load_weights(const char *weight_file)
